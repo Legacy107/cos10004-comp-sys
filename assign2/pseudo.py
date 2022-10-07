@@ -22,6 +22,9 @@ def get_code(arr):
         get_code(arr)
         allowed:
 
+    if count != 4:
+        get_code(arr)
+
 def compare_code(secret, query):
     R0 = 0
     R1 = 0
