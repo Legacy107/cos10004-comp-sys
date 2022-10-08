@@ -3,6 +3,8 @@ codebreaker = ''
 R10 = 0
 secret_code = []
 query_code = []
+response_code = []
+line = []
 
 def get_code(arr):
     print("Enter a code:\n")
@@ -28,15 +30,65 @@ def get_code(arr):
 def compare_code(secret, query):
     R0 = 0
     R1 = 0
-    for i = 0, i < 4, i++:
-        if query[i] = secret[i]:
+    for i in range(4):
+        if query[i] == secret[i]:
             R0 += 1
         else:
-            for j = 0, j < 4, j++:
-                if query[i] = secret[i]:
+            for j in range(4):
+                if query[i] == secret[i]:
                     R1 += 1
 
+def get_colour(display, code):
+    for i in range(4):
+        if code[i] == 'r':
+            display[i] == "red"
+        if code[i] == 'g':
+            display[i] == "red"
+        if code[i] == 'b':
+            display[i] == "blue"
+        if code[i] == 'c':
+            display[i] == "cyan"
+        if code[i] == 'p':
+            display[i] == "purple"
+        if code[i] == 'y':
+            display[i] == "yellow"
+        if code[i] == 'w':
+            display[i] == "white"
+        if code[i] == 'k':
+            display[i] == "black"
+        if code[i] == 'o':
+            display[i] == "grey"
+
+def get_response_code(exact, partial, arr):
+    id = 0
+    for i in range(exact):
+        arr[id] = 'k'
+        id += 1
+    for i in range(partial):
+        arr[id] = 'w'
+        id += 1
+    while id < 4:
+        arr[id] = 'o'
+        id += 1
+
+def draw_line(x, y, line):
+    for pixel in line:
+        draw(pixel, x, y)
+        x += 1
+
+def display_guess(number, query, response):
+    get_colour(line, query)
+    x = 5
+    y = number + 5
+    draw_line(x, y, line)
+
+    get_colour(line, response)
+    x = 12
+    y = number + 5
+    draw_line(x, y, line)
+
 if __name__ == "__main__":
+    clear_screen("grey")
     codemaker = read_string()
     codebreaker = read_string()
     R0 = read_int()
@@ -64,6 +116,9 @@ if __name__ == "__main__":
         print(R0)
         print(", Colour matches: ")
         print(R1 + '\n')
+
+        get_response_code(R0, R1, response_code)
+        display_guess(i, query, response_code)
 
         if R0 == 4:
             print(codebreaker)
