@@ -1,14 +1,14 @@
 main:
-      MOV R4, #.grey
+      MOV R4, #.burlywood
       MOV R1, #.PixelScreen
       MOV R2, #0
       LDR R3, .PixelAreaSize
-clearPixel:
+clearScreen:
       STR R4, [R1]                  // clear screen
       ADD R1, R1, #4
       ADD R2, R2, #1
       CMP R2, R3
-      BLT clearPixel
+      BLT clearScreen
 
       MOV R4, #askMakerName         // read maker's name
       STR R4, .WriteString
@@ -40,6 +40,24 @@ clearPixel:
       STR R4, .WriteString
       STR R5, .WriteSignedNum
       BL newline
+
+      MOV R1, #.PixelScreen         // draw borders
+      ADD R1, R1, #104
+      MOV R2, #0
+      MOV R4, #.grey
+drawVerticalLines:
+      MOV R3, R1
+      STR R4, [R3]
+      ADD R3, R3, #20
+      STR R4, [R3]
+      ADD R3, R3, #4
+      STR R4, [R3]
+      ADD R3, R3, #20
+      STR R4, [R3]
+      ADD R1, R1, #256
+      ADD R2, R2, #1
+      CMP R2, R5
+      BLT drawVerticalLines
 
       MOV R4, #codemaker            // read secret code
       STR R4, .WriteString
@@ -246,7 +264,7 @@ getColourK:
       MOV R7, #.black
       B getColourStore
 getColourO:
-      MOV R7, #.grey               // no need to check grey
+      MOV R7, #.burlywood           // no need to check last colour
 getColourStore:
       STR R7, [R0 + R5]
       ADD R5, R5, R8
@@ -337,9 +355,8 @@ displayGuess:
       POP {R0, R1, R2, LR}
 
       PUSH {R0, R1, R2, LR}
-      MOV R1, R0
-      MOV R0, #5                    // x = 5
-      ADD R1, R1,  #5               // y = guess + 5
+      MOV R1, R0                    // y = guess
+      MOV R0, #27                   // x = 27
       MOV R2, #line
       BL drawLine
       POP {R0, R1, R2, LR}
@@ -351,9 +368,8 @@ displayGuess:
       POP {R0, R1, R2, LR}
 
       PUSH {R0, R1, R2, LR}
-      MOV R1, R0
-      MOV R0, #12                    // x = 12
-      ADD R1, R1, #5                // y = guess + 5
+      MOV R1, R0                    // y = guess
+      MOV R0, #33                   // x = 33
       MOV R2, #line
       BL drawLine
       POP {R0, R1, R2, LR}
