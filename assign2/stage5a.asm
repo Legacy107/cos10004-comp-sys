@@ -1,31 +1,31 @@
 main:
-      MOV R4, #askMakerName         // read maker name
+      MOV R4, #askMakerName         // read maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .ReadString
 
-      MOV R4, #askBreakerName       // read break name
+      MOV R4, #askBreakerName       // read break's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .ReadString
 
-      MOV R4, #askMaxQueries        // read max query
+      MOV R4, #askMaxQueries        // read max queries
       STR R4, .WriteString
       LDR R5, .InputNum
 
-      MOV R4, #printMaker
+      MOV R4, #printMaker           // print maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printBreaker
+      MOV R4, #printBreaker         // print breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printMaxQueries
+      MOV R4, #printMaxQueries      // print max queries
       STR R4, .WriteString
       STR R5, .WriteSignedNum
       BL newline
@@ -37,7 +37,7 @@ main:
       MOV R0, #secretcode
       BL getcode
 
-      MOV R6, #0                    // counter
+      MOV R6, #0                    // current number of guesses
 loop:
       ADD R6, R6, #1
 
@@ -58,27 +58,34 @@ loop:
       BLT loop
       HALT
 
+// desc: print new line char
 newline:
       MOV R0, #0xA
       STRB R0, .WriteChar
       RET
 
-getcode:                            // params: R0 -> arr
-      PUSH {R3, R4, R5, R6, R7}
+// desc: read code from user input and store it into arr
+// params: R0 -> arr
+// return: R0 -> arr with values
+getcode:                            
+      PUSH {R3, R4, R5, R6, R7, R8, R9}
+getcodeMain:
       MOV R1, #askCode
       STR R1, .WriteString
       STR R0, .ReadString
       MOV R3, #0                    // offset
       MOV R4, #allowedChars
       LDR R7, charSize
+      LDR R8, codeSize
+      LDR R9, allowedCharsSize
 getcodeLoop:                        // for char in code
       LDRB R2, [R0 + R3]
       ADD R3, R3, R7
       CMP R2, #0                    // end of string
       BEQ getcodeReturn
 
-      CMP R3, #5                    // string length > 4
-      BEQ getcode
+      CMP R3, R8                    // string length > 4
+      BGT getcodeMain
 
       MOV R5, #0                    // offset
 getcodeLoop2:                       // for char in allowedChars
@@ -87,24 +94,28 @@ getcodeLoop2:                       // for char in allowedChars
       BEQ getcodeLoop               // char is allowed
 
       ADD R5, R5, R7
-      CMP R5, #6                    // end of string
+      CMP R5, R9                    // end of string
       BLT getcodeLoop2
-      B getcode                     // char is not allowed
+      B getcodeMain                 // char is not allowed
 getcodeReturn:
-      CMP R3, #4                    // length < 4
-      BLT getcode
-      POP {R3, R4, R5, R6, R7}
+      CMP R3, R8                    // length < 4
+      BLT getcodeMain
+      POP {R3, R4, R5, R6, R7, R8, R9}
       RET
 
-comparecodes:                       // params: R0 -> secret array, R1 -> query array
-      PUSH {R3, R4, R5, R6, R7, R8}
+// desc: compare query to secret code and return feedback 
+// params: R0 -> secret array, R1 -> query array
+// return: R0 -> number of exact matches, R1 -> number of colour matches
+comparecodes:
+      PUSH {R3, R4, R5, R6, R7, R8, R9}
       LDR R2, charSize
       MOV R3, #0                    // exact match
       MOV R4, #0                    // partial match
       MOV R5, #0                    // offset
+      LDR R9, codeSize
 comparecodesLoop:
-      LDRB R6, [R0 + R5]             // char in secret
-      LDRB R7, [R1 + R5]             // char in query
+      LDRB R6, [R0 + R5]            // char in secret
+      LDRB R7, [R1 + R5]            // char in query
       CMP R6, R7                    // exact match
       BNE comparecodesElse
       ADD R3, R3, #1
@@ -112,21 +123,23 @@ comparecodesLoop:
 comparecodesElse:
       MOV R8, #0                    // offset
 comparecodesLoop2:
-      LDRB R6, [R0 + R8]             // char in secret
-      ADD R8, R8, R2
+      LDRB R6, [R0 + R8]            // char in secret
       CMP R6, R7                    // partial match
-      BNE comparecodesLoop2
+      BNE comparecodesLoop2Else
       ADD R4, R4, #1
-      CMP R8, #4
+      B comparecodesEndIf
+comparecodesLoop2Else:
+      ADD R8, R8, R2
+      CMP R8, R9
       BLT comparecodesLoop2
 comparecodesEndIf:
       ADD R5, R5, R2
-      CMP R5, #4
+      CMP R5, R9
       BLT comparecodesLoop
 
       MOV R0, R3
       MOV R1, R4
-      POP {R3, R4, R5, R6, R7, R8}
+      POP {R3, R4, R5, R6, R7, R8, R9}
       RET
 
 codemaker: .BLOCK 128
@@ -144,4 +157,6 @@ printGuessNumber: .ASCIZ ", this is guess number:"
 askQueryCode: .ASCIZ "Please enter a 4-character code\n"
 askCode: .ASCIZ "Enter a code:\n"
 charSize: 1
+codeSize: 4
+allowedCharsSize: 6
 allowedChars: .ASCIZ "rgbypc"
