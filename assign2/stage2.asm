@@ -4,7 +4,7 @@ main:
       MOV R4, #codemaker
       STR R4, .ReadString
 
-      MOV R4, #askBreakerName       // read break's name
+      MOV R4, #askBreakerName       // read breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .ReadString
