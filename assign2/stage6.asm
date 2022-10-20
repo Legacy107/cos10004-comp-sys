@@ -41,8 +41,25 @@ clearScreen:
       STR R5, .WriteSignedNum
       BL newline
 
+      MOV R0, #revealCode           // init mask array
+      LDR R3, codeSize
+      LDR R4, wordSize
+      MOV R6, #0                    // offset
+      MOV R7, #0                    // count
+      MOV R8, #0                    // default value
+initLoop:
+      STR R8, [R0 + R6]
+      ADD R6, R6, R4
+      ADD R7, R7, #1
+      CMP R7, R3
+      BLT initLoop
+
+      MOV R0, #secretcode
+      MOV R1, #revealCode
+      BL displayAnswer
+
       MOV R1, #.PixelScreen         // draw borders
-      ADD R1, R1, #104
+      ADD R1, R1, #616
       MOV R2, #0
       MOV R4, #.grey
 drawVerticalLines:
@@ -59,6 +76,15 @@ drawVerticalLines:
       CMP R2, R5
       BLT drawVerticalLines
 
+      MOV R0, #47                   // draw the number of maximum guesses
+      MOV R1, #.CharScreen
+      ADD R1, R1, #1
+      STRB R0, [R1]
+      MOV R0, #48
+      ADD R0, R0, R5
+      ADD R1, R1, #1
+      STRB R0, [R1]
+
       MOV R4, #codemaker            // read secret code
       STR R4, .WriteString
       MOV R4, #askSecretCode
@@ -71,12 +97,17 @@ drawVerticalLines:
 loop:
       ADD R6, R6, #1
 
-      MOV R4, #codebreaker          // print number of guess
+      MOV R4, #codebreaker          // print number of guesses
       STR R4, .WriteString
       MOV R4, #printGuessNumber
       STR R4, .WriteString
       STR R6, .WriteSignedNum
       BL newline
+
+      MOV R0, #48                   // draw the number of guesses
+      MOV R1, #.CharScreen
+      ADD R0, R0, R6
+      STRB R0, [R1]
 
       MOV R4, #askQueryCode         // read query code
       STR R4, .WriteString
@@ -85,6 +116,7 @@ loop:
 
       MOV R0, #secretcode           // count matches
       MOV R1, #querycode
+      MOV R2, #revealCode
       BL comparecodes
 
       MOV R4, #printPositionMatches // print feedback
@@ -107,6 +139,12 @@ loop:
       MOV R1, #querycode
       MOV R2, #responsecode
       BL displayGuess
+      POP {R0, R1}
+
+      PUSH {R0, R1}
+      MOV R0, #secretcode
+      MOV R1, #revealCode
+      BL displayAnswer
       POP {R0, R1}
 
       CMP R0, R7                    // check win
@@ -173,21 +211,26 @@ getcodeReturn:
       RET
 
 // desc: compare query to secret code and return feedback 
-// params: R0 -> secret array, R1 -> query array
+// params: R0 -> secret array, R1 -> query array, R2 -> mask array
 // return: R0 -> number of exact matches, R1 -> number of colour matches
 comparecodes:
-      PUSH {R3, R4, R5, R6, R7, R8, R9}
-      LDR R2, charSize
+      PUSH {R3, R4, R5, R6, R7, R8, R9, R10, R11, R12}
+      LDR R10, charSize
       MOV R3, #0                    // exact match
       MOV R4, #0                    // partial match
       MOV R5, #0                    // offset
       LDR R9, codeSize
+      LDR R11, wordSize
+      MOV R12, #0                   // offset
 comparecodesLoop:
       LDRB R6, [R0 + R5]            // char in secret
       LDRB R7, [R1 + R5]            // char in query
       CMP R6, R7                    // exact match
       BNE comparecodesElse
       ADD R3, R3, #1
+      LDR R6, [R2 + R12]
+      ORR R6, R6, #1
+      STR R6, [R2 + R12]
       B comparecodesEndIf
 comparecodesElse:
       MOV R8, #0                    // offset
@@ -198,17 +241,18 @@ comparecodesLoop2:
       ADD R4, R4, #1
       B comparecodesEndIf
 comparecodesLoop2Else:
-      ADD R8, R8, R2
+      ADD R8, R8, R10
       CMP R8, R9
       BLT comparecodesLoop2
 comparecodesEndIf:
-      ADD R5, R5, R2
+      ADD R12, R12, R11
+      ADD R5, R5, R10
       CMP R5, R9
       BLT comparecodesLoop
 
       MOV R0, R3
       MOV R1, R4
-      POP {R3, R4, R5, R6, R7, R8, R9}
+      POP {R3, R4, R5, R6, R7, R8, R9, R10, R11, R12}
       RET
 
 // desc: convert code to array of colours
@@ -355,7 +399,8 @@ displayGuess:
       POP {R0, R1, R2, LR}
 
       PUSH {R0, R1, R2, LR}
-      MOV R1, R0                    // y = guess
+      MOV R1, R0                    // y = guess + 2
+      ADD R1, R1, #2
       MOV R0, #27                   // x = 27
       MOV R2, #line
       BL drawLine
@@ -368,13 +413,52 @@ displayGuess:
       POP {R0, R1, R2, LR}
 
       PUSH {R0, R1, R2, LR}
-      MOV R1, R0                    // y = guess
+      MOV R1, R0                    // y = guess + 2
+      ADD R1, R1, #2
       MOV R0, #33                   // x = 33
       MOV R2, #line
       BL drawLine
       POP {R0, R1, R2, LR}
 
       POP {R3}
+      RET
+
+// desc: draw a line for the secret code
+// params: R0 -> secret code, R1 -> mask for revealing the code
+displayAnswer:
+      PUSH {R3, R4, R5, R6, R7, R8}
+
+      PUSH {R0, R1, R2, LR}
+      MOV R1, R0
+      MOV R0, #line
+      BL getColour
+      POP {R0, R1, R2, LR}
+
+      MOV R0, #line
+      LDR R3, wordSize
+      MOV R4, #0                    // offset
+      LDR R5, codeSize
+      MOV R6, #0                    // count
+displayAnswerLoop:
+      LDR R7, [R1 + R4]
+      ADD R8, R0, R4
+      ADD R4, R4, R3
+      ADD R6, R6, #1
+      CMP R7, #0
+      BNE displayAnswerLoop
+      MOV R7, #.black               // hide char if it has not been guessed correctly
+      STR R7, [R8]
+      CMP R6, R5
+      BLT displayAnswerLoop
+
+      PUSH {R0, R1, R2, LR}
+      MOV R0, #27                   // x = 27
+      MOV R1, #0                    // y = 0
+      MOV R2, #line
+      BL drawLine
+      POP {R0, R1, R2, LR}
+
+      POP {R3, R4, R5, R6, R7, R8}
       RET
 
 codemaker: .BLOCK 128
@@ -398,6 +482,10 @@ allowedCharsSize: 6
 allowedChars: .ASCIZ "rgbypc"
 wordSize: 4
 line: .WORD 0
+      0
+      0
+      0
+revealCode: .WORD 0
       0
       0
       0
