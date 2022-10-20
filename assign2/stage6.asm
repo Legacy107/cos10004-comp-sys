@@ -41,6 +41,9 @@ clearScreen:
       STR R5, .WriteSignedNum
       BL newline
 
+      CMP R5, #1
+      BLT readSecret                // skip drawing
+
       MOV R0, #revealCode           // init mask array
       LDR R3, codeSize
       LDR R4, wordSize
@@ -85,6 +88,7 @@ drawVerticalLines:
       ADD R1, R1, #1
       STRB R0, [R1]
 
+readSecret:
       MOV R4, #codemaker            // read secret code
       STR R4, .WriteString
       MOV R4, #askSecretCode
@@ -92,6 +96,8 @@ drawVerticalLines:
       MOV R0, #secretcode
       BL getcode
 
+      CMP R5, #1
+      BLT lose                      // skip game loop
       MOV R6, #0                    // current number of guesses
       LDR R7, codeSize
 loop:

@@ -37,6 +37,8 @@ main:
       MOV R0, #secretcode
       BL getcode
 
+      CMP R5, #1
+      BLT lose                      // skip game loop
       MOV R6, #0                    // current number of guesses
       LDR R7, codeSize
 loop:

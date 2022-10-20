@@ -37,6 +37,8 @@ main:
       MOV R0, #secretcode
       BL getcode
 
+      CMP R5, #1
+      BLT end                       // skip game loop
       MOV R6, #0                    // current number of guesses
 loop:
       ADD R6, R6, #1
@@ -56,6 +58,7 @@ loop:
 
       CMP R6, R5
       BLT loop
+end:
       HALT
 
 // desc: print new line char
