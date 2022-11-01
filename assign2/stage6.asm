@@ -160,7 +160,7 @@ newline:
 // params: R0 -> arr
 // return: R0 -> arr with values
 getcode:                            
-      PUSH {R3, R4, R5, R6, R7, R8, R9}
+      PUSH {R4, R5, R6, R7, R8, R9}
 getcodeMain:
       MOV R1, #askCode
       STR R1, .WriteString
@@ -192,14 +192,14 @@ getcodeLoop2:                       // for char in allowedChars
 getcodeReturn:
       CMP R3, R8                    // length < 4
       BLT getcodeMain
-      POP {R3, R4, R5, R6, R7, R8, R9}
+      POP {R4, R5, R6, R7, R8, R9}
       RET
 
 // desc: compare query to secret code and return feedback 
 // params: R0 -> secret array, R1 -> query array
 // return: R0 -> number of exact matches, R1 -> number of colour matches
 comparecodes:
-      PUSH {R3, R4, R5, R6, R7, R8, R9}
+      PUSH {R4, R5, R6, R7, R8, R9}
       LDR R2, charSize
       MOV R3, #0                    // exact match
       MOV R4, #0                    // partial match
@@ -231,14 +231,14 @@ comparecodesEndIf:
 
       MOV R0, R3
       MOV R1, R4
-      POP {R3, R4, R5, R6, R7, R8, R9}
+      POP {R4, R5, R6, R7, R8, R9}
       RET
 
 // desc: convert code to array of colours
 // params: R0 -> arr, R1 -> code
 // return: R0 -> arr of colours
 getColour:
-      PUSH {R3, R4, R5, R6, R7, R8}
+      PUSH {R4, R5, R6, R7, R8}
       LDR R2, charSize
       LDR R3, codeSize
       LDR R8, wordSize
@@ -294,14 +294,14 @@ getColourStore:
       ADD R4, R4, #1
       CMP R4, R3
       BLT getColourLoop
-      POP {R3, R4, R5, R6, R7, R8}
+      POP {R4, R5, R6, R7, R8}
       RET
 
 // desc: get colour code for response
 // params: R0 -> arr, R1 -> exact matches, R2 -> partial matches
 // return: R0 -> arr of code
 getResponseCode:
-      PUSH {R3, R4, R5, R6}
+      PUSH {R4, R5, R6}
       LDR R3, charSize
       MOV R4, #0                    // offset
       LDR R6, codeSize
@@ -329,13 +329,13 @@ getResponseCodeLoop3:
       ADD R4, R4, R3
       B getResponseCodeLoop3
 getResponseCodeReturn:
-      POP {R3, R4, R5, R6}
+      POP {R4, R5, R6}
       RET
 
 // desc: draw a 4-pixel line of colours at (x, y)
 // params: R0 -> x, R1 -> y, R2 -> arr of colours
 drawLine:
-      PUSH {R3, R4, R5, R6, R7, R8, R9}
+      PUSH {R4, R5, R6, R7, R8, R9}
       LDR R3, wordSize
       MOV R4, #0                    // offset
       MOV R5, #.PixelScreen         // pixel
@@ -364,14 +364,12 @@ drawLineLoop:
       CMP R9, R7
       BLT drawLineLoop
 
-      POP {R3, R4, R5, R6, R7, R8, R9}
+      POP {R4, R5, R6, R7, R8, R9}
       RET
 
 // desc: draw a line for guess and a line for response
 // params: R0 -> guess number, R1 -> query code, R2 -> response code
 displayGuess:
-      PUSH {R3}
-
       PUSH {R0, R1, R2, LR}
       MOV R0, #line
       BL getColour
@@ -398,14 +396,12 @@ displayGuess:
       MOV R2, #line
       BL drawLine
       POP {R0, R1, R2, LR}
-
-      POP {R3}
       RET
 
 // desc: draw a line for the secret code
 // params: R0 -> secret code, R1 -> should hide the code
 displayAnswer:
-      PUSH {R3, R4, R5, R6, R7}
+      PUSH {R4, R5, R6, R7}
 
       CMP R1, #1                    // should hide == true
       BEQ displayAnswerFillBlack
@@ -439,7 +435,7 @@ displayAnswerDraw:
       BL drawLine
       POP {R0, R1, R2, LR}
 
-      POP {R3, R4, R5, R6, R7}
+      POP {R4, R5, R6, R7}
       RET
 
 codemaker: .BLOCK 128

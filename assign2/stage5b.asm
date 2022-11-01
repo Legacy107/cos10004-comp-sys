@@ -96,7 +96,7 @@ newline:
 // params: R0 -> arr
 // return: R0 -> arr with values
 getcode:                            
-      PUSH {R3, R4, R5, R6, R7, R8, R9}
+      PUSH {R4, R5, R6, R7, R8, R9}
 getcodeMain:
       MOV R1, #askCode
       STR R1, .WriteString
@@ -128,14 +128,14 @@ getcodeLoop2:                       // for char in allowedChars
 getcodeReturn:
       CMP R3, R8                    // length < 4
       BLT getcodeMain
-      POP {R3, R4, R5, R6, R7, R8, R9}
+      POP {R4, R5, R6, R7, R8, R9}
       RET
 
 // desc: compare query to secret code and return feedback 
 // params: R0 -> secret array, R1 -> query array
 // return: R0 -> number of exact matches, R1 -> number of colour matches
 comparecodes:
-      PUSH {R3, R4, R5, R6, R7, R8, R9}
+      PUSH {R4, R5, R6, R7, R8, R9}
       LDR R2, charSize
       MOV R3, #0                    // exact match
       MOV R4, #0                    // partial match
@@ -167,7 +167,7 @@ comparecodesEndIf:
 
       MOV R0, R3
       MOV R1, R4
-      POP {R3, R4, R5, R6, R7, R8, R9}
+      POP {R4, R5, R6, R7, R8, R9}
       RET
 
 codemaker: .BLOCK 128

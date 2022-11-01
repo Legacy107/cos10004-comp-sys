@@ -48,7 +48,7 @@ newline:
 // params: R0 -> arr
 // return: R0 -> arr with values
 getcode:                            
-      PUSH {R3, R4, R5, R6, R7, R8, R9}
+      PUSH {R4, R5, R6, R7, R8, R9}
 getcodeMain:
       MOV R1, #askCode
       STR R1, .WriteString
@@ -80,7 +80,7 @@ getcodeLoop2:                       // for char in allowedChars
 getcodeReturn:
       CMP R3, R8                    // length < 4
       BLT getcodeMain
-      POP {R3, R4, R5, R6, R7, R8, R9}
+      POP {R4, R5, R6, R7, R8, R9}
       RET
 
 codemaker: .BLOCK 128
