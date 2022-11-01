@@ -79,15 +79,6 @@ drawVerticalLines:
       CMP R2, R5
       BLT drawVerticalLines
 
-      MOV R0, #47                   // draw the number of maximum guesses
-      MOV R1, #.CharScreen
-      ADD R1, R1, #1
-      STRB R0, [R1]
-      MOV R0, #48
-      ADD R0, R0, R5
-      ADD R1, R1, #1
-      STRB R0, [R1]
-
 readSecret:
       MOV R4, #codemaker            // read secret code
       STR R4, .WriteString
@@ -101,18 +92,16 @@ readSecret:
       MOV R6, #0                    // current number of guesses
       LDR R7, codeSize
 loop:
-      ADD R6, R6, #1
-
       MOV R4, #codebreaker          // print number of guesses
       STR R4, .WriteString
       MOV R4, #printGuessNumber
       STR R4, .WriteString
-      STR R6, .WriteSignedNum
+      STR R5, .WriteSignedNum
       BL newline
 
       MOV R0, #48                   // draw the number of guesses
       MOV R1, #.CharScreen
-      ADD R0, R0, R6
+      ADD R0, R0, R5
       STRB R0, [R1]
 
       MOV R4, #askQueryCode         // read query code
@@ -141,7 +130,7 @@ loop:
       POP {R0, R1}
 
       PUSH {R0, R1}
-      SUB R0, R6, #1
+      MOV R0, R6
       MOV R1, #querycode
       MOV R2, #responsecode
       BL displayGuess
@@ -156,8 +145,10 @@ loop:
       CMP R0, R7                    // check win
       BEQ win
 
-      CMP R6, R5
-      BLT loop
+      ADD R6, R6, #1
+      SUB R5, R5, #1
+      CMP R5, #0
+      BGT loop
 lose:
       MOV R4, #codebreaker
       STR R4, .WriteString

@@ -39,16 +39,13 @@ main:
 
       CMP R5, #1
       BLT lose                      // skip game loop
-      MOV R6, #0                    // current number of guesses
       LDR R7, codeSize
 loop:
-      ADD R6, R6, #1
-
       MOV R4, #codebreaker          // print number of guess
       STR R4, .WriteString
       MOV R4, #printGuessNumber
       STR R4, .WriteString
-      STR R6, .WriteSignedNum
+      STR R5, .WriteSignedNum
       BL newline
 
       MOV R4, #askQueryCode         // read query code
@@ -73,8 +70,9 @@ loop:
       CMP R0, R7                    // check win
       BEQ win
 
-      CMP R6, R5
-      BLT loop
+      SUB R5, R5, #1
+      CMP R5, #0
+      BGT loop
 lose:
       MOV R4, #codebreaker
       STR R4, .WriteString

@@ -39,25 +39,22 @@ main:
 
       CMP R5, #1
       BLT end                       // skip game loop
-      MOV R6, #0                    // current number of guesses
 loop:
-      ADD R6, R6, #1
-
       MOV R4, #codebreaker          // print number of guess
       STR R4, .WriteString
       MOV R4, #printGuessNumber
       STR R4, .WriteString
-      STR R6, .WriteSignedNum
+      STR R5, .WriteSignedNum
       BL newline
 
       MOV R4, #askQueryCode         // read query code
       STR R4, .WriteString
       MOV R0, #querycode
-      STR R0, .WriteString
       BL getcode
 
-      CMP R6, R5
-      BLT loop
+      SUB R5, R5, #1
+      CMP R5, #0
+      BGT loop
 end:
       HALT
 
