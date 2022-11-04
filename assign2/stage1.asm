@@ -1,31 +1,31 @@
 main:
-      MOV R4, #askMakerName         // read maker's name
+      MOV R4, #askmakername         // read maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .ReadString
 
-      MOV R4, #askBreakerName       // read breaker's name
+      MOV R4, #askbreakername       // read breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .ReadString
 
-      MOV R4, #askMaxQueries        // read max queries
+      MOV R4, #askmaxqueries        // read max queries
       STR R4, .WriteString
       LDR R5, .InputNum
 
-      MOV R4, #printMaker           // print maker's name
+      MOV R4, #printmaker           // print maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printBreaker         // print breaker's name
+      MOV R4, #printbreaker         // print breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printMaxQueries      // print max queries
+      MOV R4, #printmaxqueries      // print max queries
       STR R4, .WriteString
       STR R5, .WriteSignedNum
       BL newline
@@ -37,11 +37,12 @@ newline:
       STRB R0, .WriteChar
       RET
 
+.ALIGN 4
 codemaker: .BLOCK 128
 codebreaker: .BLOCK 128
-askMakerName: .ASCIZ "Enter code maker name:\n"
-askBreakerName: .ASCIZ "Enter code breaker name:\n"
-askMaxQueries: .ASCIZ "Enter the maximum number of queries:\n"
-printMaker: .ASCIZ "Codemaker is: "
-printBreaker: .ASCIZ "Codebreaker is: "
-printMaxQueries: .ASCIZ "Maximum number of guesses: "
+askmakername: .ASCIZ "Enter code maker name:\n"
+askbreakername: .ASCIZ "Enter code breaker name:\n"
+askmaxqueries: .ASCIZ "Enter the maximum number of queries:\n"
+printmaker: .ASCIZ "Codemaker is: "
+printbreaker: .ASCIZ "Codebreaker is: "
+printmaxqueries: .ASCIZ "Maximum number of guesses: "

@@ -1,31 +1,31 @@
 main:
-      MOV R4, #askMakerName         // read maker's name
+      MOV R4, #askmakername         // read maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .ReadString
 
-      MOV R4, #askBreakerName       // read breaker's name
+      MOV R4, #askbreakername       // read breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .ReadString
 
-      MOV R4, #askMaxQueries        // read max queries
+      MOV R4, #askmaxqueries        // read max queries
       STR R4, .WriteString
       LDR R5, .InputNum
 
-      MOV R4, #printMaker           // print maker's name
+      MOV R4, #printmaker           // print maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printBreaker         // print breaker's name
+      MOV R4, #printbreaker         // print breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printMaxQueries      // print max queries
+      MOV R4, #printmaxqueries      // print max queries
       STR R4, .WriteString
       STR R5, .WriteSignedNum
       BL newline
@@ -45,51 +45,53 @@ newline:
 // return: R0 -> arr with values
 getcode:                            
       PUSH {R4, R5, R6, R7, R8, R9}
-getcodeMain:
-      MOV R1, #askCode
+getcodemain:
+      MOV R1, #askcode
       STR R1, .WriteString
       STR R0, .ReadString
       MOV R3, #0                    // offset
-      MOV R4, #allowedChars
-      LDR R7, charSize
-      LDR R8, codeSize
-      LDR R9, allowedCharsSize
-getcodeLoop:                        // for char in code
+      MOV R4, #allowedchars
+      LDR R7, charsize
+      LDR R8, codesize
+      LDR R9, allowedcharssize
+getcodeloop:                        // for char in code
       LDRB R2, [R0 + R3]
       ADD R3, R3, R7
       CMP R2, #0                    // end of string
-      BEQ getcodeReturn
+      BEQ getcodereturn
 
       CMP R3, R8                    // string length > 4
-      BGT getcodeMain
+      BGT getcodemain
 
       MOV R5, #0                    // offset
-getcodeLoop2:                       // for char in allowedChars
+getcodeloop2:                       // for char in allowedchars
       LDRB R6, [R4 + R5]
       CMP R2, R6
-      BEQ getcodeLoop               // char is allowed
+      BEQ getcodeloop               // char is allowed
 
       ADD R5, R5, R7
       CMP R5, R9                    // end of string
-      BLT getcodeLoop2
-      B getcodeMain                 // char is not allowed
-getcodeReturn:
+      BLT getcodeloop2
+      B getcodemain                 // char is not allowed
+getcodereturn:
       CMP R3, R8                    // length < 4
-      BLT getcodeMain
+      BLT getcodemain
       POP {R4, R5, R6, R7, R8, R9}
       RET
 
+.ALIGN 4
 codemaker: .BLOCK 128
 codebreaker: .BLOCK 128
 querycode: .BLOCK 128
-askMakerName: .ASCIZ "Enter code maker name:\n"
-askBreakerName: .ASCIZ "Enter code breaker name:\n"
-askMaxQueries: .ASCIZ "Enter the maximum number of queries:\n"
-printMaker: .ASCIZ "Codemaker is: "
-printBreaker: .ASCIZ "Codebreaker is: "
-printMaxQueries: .ASCIZ "Maximum number of guesses: "
-askCode: .ASCIZ "Enter a code:\n"
-charSize: 1
-codeSize: 4
-allowedCharsSize: 6
-allowedChars: .ASCIZ "rgbypc"
+askmakername: .ASCIZ "Enter code maker name:\n"
+askbreakername: .ASCIZ "Enter code breaker name:\n"
+askmaxqueries: .ASCIZ "Enter the maximum number of queries:\n"
+printmaker: .ASCIZ "Codemaker is: "
+printbreaker: .ASCIZ "Codebreaker is: "
+printmaxqueries: .ASCIZ "Maximum number of guesses: "
+askcode: .ASCIZ "Enter a code:\n"
+.ALIGN 4
+charsize: 1
+codesize: 4
+allowedcharssize: 6
+allowedchars: .ASCIZ "rgbypc"

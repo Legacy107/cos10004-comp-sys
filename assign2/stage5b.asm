@@ -1,54 +1,54 @@
 main:
-      MOV R4, #askMakerName         // read maker's name
+      MOV R4, #askmakername         // read maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .ReadString
 
-      MOV R4, #askBreakerName       // read breaker's name
+      MOV R4, #askbreakername       // read breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .ReadString
 
-      MOV R4, #askMaxQueries        // read max queries
+      MOV R4, #askmaxqueries        // read max queries
       STR R4, .WriteString
       LDR R5, .InputNum
 
-      MOV R4, #printMaker           // print maker's name
+      MOV R4, #printmaker           // print maker's name
       STR R4, .WriteString
       MOV R4, #codemaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printBreaker         // print breaker's name
+      MOV R4, #printbreaker         // print breaker's name
       STR R4, .WriteString
       MOV R4, #codebreaker
       STR R4, .WriteString
       BL newline
 
-      MOV R4, #printMaxQueries      // print max queries
+      MOV R4, #printmaxqueries      // print max queries
       STR R4, .WriteString
       STR R5, .WriteSignedNum
       BL newline
 
       MOV R4, #codemaker            // read secret code
       STR R4, .WriteString
-      MOV R4, #askSecretCode
+      MOV R4, #asksecretcode
       STR R4, .WriteString
       MOV R0, #secretcode
       BL getcode
 
       CMP R5, #1
       BLT lose                      // skip game loop
-      LDR R7, codeSize
+      LDR R7, codesize
 loop:
       MOV R4, #codebreaker          // print number of guess
       STR R4, .WriteString
-      MOV R4, #printGuessNumber
+      MOV R4, #printguessnumber
       STR R4, .WriteString
       STR R5, .WriteSignedNum
       BL newline
 
-      MOV R4, #askQueryCode         // read query code
+      MOV R4, #askquerycode         // read query code
       STR R4, .WriteString
       MOV R0, #querycode
       BL getcode
@@ -57,10 +57,10 @@ loop:
       MOV R1, #querycode
       BL comparecodes
 
-      MOV R4, #printPositionMatches // print feedback
+      MOV R4, #printpositionmatches // print feedback
       STR R4, .WriteString
       STR R0, .WriteSignedNum
-      MOV R4, #printColourMatches
+      MOV R4, #printcolourmatches
       STR R4, .WriteString
       STR R1, .WriteSignedNum
       PUSH {R0, R1}
@@ -76,13 +76,13 @@ loop:
 lose:
       MOV R4, #codebreaker
       STR R4, .WriteString
-      MOV R4, #printLose
+      MOV R4, #printlose
       STR R4, .WriteString
       HALT
 win:
       MOV R4, #codebreaker
       STR R4, .WriteString
-      MOV R4, #printWin
+      MOV R4, #printwin
       STR R4, .WriteString
       HALT
 
@@ -97,37 +97,37 @@ newline:
 // return: R0 -> arr with values
 getcode:                            
       PUSH {R4, R5, R6, R7, R8, R9}
-getcodeMain:
-      MOV R1, #askCode
+getcodemain:
+      MOV R1, #askcode
       STR R1, .WriteString
       STR R0, .ReadString
       MOV R3, #0                    // offset
-      MOV R4, #allowedChars
-      LDR R7, charSize
-      LDR R8, codeSize
-      LDR R9, allowedCharsSize
-getcodeLoop:                        // for char in code
+      MOV R4, #allowedchars
+      LDR R7, charsize
+      LDR R8, codesize
+      LDR R9, allowedcharssize
+getcodeloop:                        // for char in code
       LDRB R2, [R0 + R3]
       ADD R3, R3, R7
       CMP R2, #0                    // end of string
-      BEQ getcodeReturn
+      BEQ getcodereturn
 
       CMP R3, R8                    // string length > 4
-      BGT getcodeMain
+      BGT getcodemain
 
       MOV R5, #0                    // offset
-getcodeLoop2:                       // for char in allowedChars
+getcodeloop2:                       // for char in allowedchars
       LDRB R6, [R4 + R5]
       CMP R2, R6
-      BEQ getcodeLoop               // char is allowed
+      BEQ getcodeloop               // char is allowed
 
       ADD R5, R5, R7
       CMP R5, R9                    // end of string
-      BLT getcodeLoop2
-      B getcodeMain                 // char is not allowed
-getcodeReturn:
+      BLT getcodeloop2
+      B getcodemain                 // char is not allowed
+getcodereturn:
       CMP R3, R8                    // length < 4
-      BLT getcodeMain
+      BLT getcodemain
       POP {R4, R5, R6, R7, R8, R9}
       RET
 
@@ -136,59 +136,61 @@ getcodeReturn:
 // return: R0 -> number of exact matches, R1 -> number of colour matches
 comparecodes:
       PUSH {R4, R5, R6, R7, R8, R9}
-      LDR R2, charSize
+      LDR R2, charsize
       MOV R3, #0                    // exact match
       MOV R4, #0                    // partial match
       MOV R5, #0                    // offset
-      LDR R9, codeSize
-comparecodesLoop:
+      LDR R9, codesize
+comparecodesloop:
       LDRB R6, [R0 + R5]            // char in secret
       LDRB R7, [R1 + R5]            // char in query
       CMP R6, R7                    // exact match
-      BNE comparecodesElse
+      BNE comparecodeselse
       ADD R3, R3, #1
-      B comparecodesEndIf
-comparecodesElse:
+      B comparecodesendif
+comparecodeselse:
       MOV R8, #0                    // offset
-comparecodesLoop2:
+comparecodesloop2:
       LDRB R6, [R0 + R8]            // char in secret
       CMP R6, R7                    // partial match
-      BNE comparecodesLoop2Else
+      BNE comparecodesloop2else
       ADD R4, R4, #1
-      B comparecodesEndIf
-comparecodesLoop2Else:
+      B comparecodesendif
+comparecodesloop2else:
       ADD R8, R8, R2
       CMP R8, R9
-      BLT comparecodesLoop2
-comparecodesEndIf:
+      BLT comparecodesloop2
+comparecodesendif:
       ADD R5, R5, R2
       CMP R5, R9
-      BLT comparecodesLoop
+      BLT comparecodesloop
 
       MOV R0, R3
       MOV R1, R4
       POP {R4, R5, R6, R7, R8, R9}
       RET
 
+.ALIGN 4
 codemaker: .BLOCK 128
 codebreaker: .BLOCK 128
 secretcode: .BLOCK 128
 querycode: .BLOCK 128
-askMakerName: .ASCIZ "Enter code maker name:\n"
-askBreakerName: .ASCIZ "Enter code breaker name:\n"
-askMaxQueries: .ASCIZ "Enter the maximum number of queries:\n"
-printMaker: .ASCIZ "Codemaker is: "
-printBreaker: .ASCIZ "Codebreaker is: "
-printMaxQueries: .ASCIZ "Maximum number of guesses: "
-askSecretCode: .ASCIZ ", please enter a 4-character secret code\n"
-printGuessNumber: .ASCIZ ", this is guess number:"
-askQueryCode: .ASCIZ "Please enter a 4-character code\n"
-askCode: .ASCIZ "Enter a code:\n"
-charSize: 1
-codeSize: 4
-allowedCharsSize: 6
-allowedChars: .ASCIZ "rgbypc"
-printPositionMatches: .ASCIZ "Position matches: "
-printColourMatches: .ASCIZ ", Colour matches: "
-printWin: .ASCIZ ", you WIN!\n"
-printLose: .ASCIZ ", you LOSE!\n"
+askmakername: .ASCIZ "Enter code maker name:\n"
+askbreakername: .ASCIZ "Enter code breaker name:\n"
+askmaxqueries: .ASCIZ "Enter the maximum number of queries:\n"
+printmaker: .ASCIZ "Codemaker is: "
+printbreaker: .ASCIZ "Codebreaker is: "
+printmaxqueries: .ASCIZ "Maximum number of guesses: "
+asksecretcode: .ASCIZ ", please enter a 4-character secret code\n"
+printguessnumber: .ASCIZ ", this is guess number:"
+askquerycode: .ASCIZ "Please enter a 4-character code\n"
+askcode: .ASCIZ "Enter a code:\n"
+.ALIGN 4
+charsize: 1
+codesize: 4
+allowedcharssize: 6
+allowedchars: .ASCIZ "rgbypc"
+printpositionmatches: .ASCIZ "Position matches: "
+printcolourmatches: .ASCIZ ", Colour matches: "
+printwin: .ASCIZ ", you WIN!\n"
+printlose: .ASCIZ ", you LOSE!\n"
