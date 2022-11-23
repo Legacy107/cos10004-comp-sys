@@ -128,6 +128,7 @@ getcodeloop2:                       // for char in allowedchars
 getcodereturn:
       CMP R3, R8                    // length < 4
       BLT getcodemain
+      BEQ getcodeMain
       POP {R4, R5, R6, R7, R8, R9}
       RET
 
